@@ -2735,7 +2735,6 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
 		f2fs_msg(sb, KERN_INFO,
 			"Corrupted extension count (%u + %u > %u)",
 			le32_to_cpu(raw_super->extension_count),
-			raw_super->hot_ext_count,
 			F2FS_MAX_EXTENSION);
 		return 1;
 	}
