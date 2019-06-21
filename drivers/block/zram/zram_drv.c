@@ -52,7 +52,7 @@ static const char *default_compressor = "lzo";
 #endif
 
 /* Module params (documentation at end) */
-static unsigned int num_devices = 1;
+static unsigned int num_devices = 4;
 
 static void zram_free_page(struct zram *zram, size_t index);
 
