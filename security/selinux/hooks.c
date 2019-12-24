@@ -206,30 +206,18 @@ static DEFINE_MUTEX(selinux_sdcardfs_lock);
 // ] SEC_SELINUX_PORTING_COMMON
 
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
-// [ SEC_SELINUX_PORTING_COMMON
-#if defined(CONFIG_ALWAYS_ENFORCE)
-// CONFIG_RKP_KDP
-int selinux_enforcing __kdp_ro;
-#else
 int selinux_enforcing __rticdata;
 #endif
-// ] SEC_SELINUX_PORTING_COMMON
 
 static int __init enforcing_setup(char *str)
 {
 	unsigned long enforcing;
 	if (!kstrtoul(str, 0, &enforcing))
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-		selinux_enforcing = 1;
-#else
 		selinux_enforcing = enforcing ? 1 : 0;
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
+
 	return 1;
 }
 __setup("enforcing=", enforcing_setup);
-#endif
 
 #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
 
@@ -240,13 +228,7 @@ static int __init selinux_enabled_setup(char *str)
 {
 	unsigned long enabled;
 	if (!kstrtoul(str, 0, &enabled))
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-		selinux_enabled = 1;
-#else
 		selinux_enabled = enabled ? 1 : 0;
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
 	return 1;
 }
 __setup("selinux=", selinux_enabled_setup);
@@ -5340,13 +5322,7 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
 			       sk->sk_protocol, nlh->nlmsg_type,
 			       secclass_map[sksec->sclass - 1].name,
 			       task_pid_nr(current), current->comm);
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-			if (security_get_allow_unknown())
-#else
 			if (!selinux_enforcing || security_get_allow_unknown())
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
 				err = 0;
 		}
 
@@ -6855,13 +6831,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init_kdp = {
 static __init int selinux_init(void)
 {
 	if (!security_module_enable("selinux")) {
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-		selinux_enabled = 1;
-#else
 		selinux_enabled = 0;
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
 		return 0;
 	}
 
@@ -6893,11 +6863,6 @@ static __init int selinux_init(void)
 	if (avc_add_callback(selinux_lsm_notifier_avc_callback, AVC_CALLBACK_RESET))
 		panic("SELinux: Unable to register AVC LSM notifier callback\n");
 
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-		selinux_enforcing = 1;
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
 	if (selinux_enforcing)
 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
 	else
@@ -6987,11 +6952,7 @@ static struct pernet_operations selinux_net_ops = {
 static int __init selinux_nf_ip_init(void)
 {
 	int err;
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_ALWAYS_ENFORCE
-		selinux_enabled = 1;
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
+
 	if (!selinux_enabled)
 		return 0;
 
