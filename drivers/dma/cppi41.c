@@ -323,7 +323,7 @@ static irqreturn_t cppi41_irq(int irq, void *data)
 		}
 
 		if (val)
-			__iormb();
+			__iormb(__v);
 
 		while (val) {
 			u32 desc, len;
@@ -666,7 +666,7 @@ static int cppi41_tear_down_chan(struct cppi41_channel *c)
 		} else if (desc_phys == td_desc_phys) {
 			u32 pd0;
 
-			__iormb();
+			__iormb(__v);
 			pd0 = td->pd0;
 			WARN_ON((pd0 >> DESC_TYPE) != DESC_TYPE_TEARD);
 			WARN_ON(!c->is_tx && !(pd0 & TD_DESC_IS_RX));

@@ -16,10 +16,10 @@
 
 #ifdef CONFIG_ISA_ARCV2
 #include <asm/barrier.h>
-#define __iormb()		rmb()
+#define __iormb(v)		rmb()
 #define __iowmb()		wmb()
 #else
-#define __iormb()		do { } while (0)
+#define __iormb(v)		do { } while (0)
 #define __iowmb()		do { } while (0)
 #endif
 
@@ -44,8 +44,8 @@ extern void iounmap(const void __iomem *addr);
 /*
  * io{read,write}{16,32}be() macros
  */
-#define ioread16be(p)		({ u16 __v = be16_to_cpu((__force __be16)__raw_readw(p)); __iormb(); __v; })
-#define ioread32be(p)		({ u32 __v = be32_to_cpu((__force __be32)__raw_readl(p)); __iormb(); __v; })
+#define ioread16be(p)		({ u16 __v = be16_to_cpu((__force __be16)__raw_readw(p)); __iormb(__v); __v; })
+#define ioread32be(p)		({ u32 __v = be32_to_cpu((__force __be32)__raw_readl(p)); __iormb(__v); __v; })
 
 #define iowrite16be(v,p)	({ __iowmb(); __raw_writew((__force u16)cpu_to_be16(v), p); })
 #define iowrite32be(v,p)	({ __iowmb(); __raw_writel((__force u32)cpu_to_be32(v), p); })
@@ -204,12 +204,12 @@ __raw_writesx(32, l)
  *
  * http://lkml.kernel.org/r/20150622133656.GG1583@arm.com
  */
-#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(); __v; })
-#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(); __v; })
-#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(); __v; })
-#define readsb(p,d,l)		({ __raw_readsb(p,d,l); __iormb(); })
-#define readsw(p,d,l)		({ __raw_readsw(p,d,l); __iormb(); })
-#define readsl(p,d,l)		({ __raw_readsl(p,d,l); __iormb(); })
+#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(__v); __v; })
+#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(__v); __v; })
+#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(__v); __v; })
+#define readsb(p,d,l)		({ __raw_readsb(p,d,l); __iormb(__v); })
+#define readsw(p,d,l)		({ __raw_readsw(p,d,l); __iormb(__v); })
+#define readsl(p,d,l)		({ __raw_readsl(p,d,l); __iormb(__v); })
 
 #define writeb(v,c)		({ __iowmb(); writeb_relaxed(v,c); })
 #define writew(v,c)		({ __iowmb(); writew_relaxed(v,c); })

@@ -40,7 +40,7 @@ static inline unsigned long _swapl(unsigned long v)
     return ((v << 24) | ((v & 0xff00) << 8) | ((v & 0xff0000) >> 8) | (v >> 24));
 }
 
-//#define __iormb() asm volatile("membar")
+//#define __iormb(v) asm volatile("membar")
 //#define __iowmb() asm volatile("membar")
 
 static inline u8 __raw_readb(const volatile void __iomem *addr)

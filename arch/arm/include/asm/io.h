@@ -228,10 +228,10 @@ static inline void __iomem *__typesafe_io(unsigned long addr)
 /* IO barriers */
 #ifdef CONFIG_ARM_DMA_MEM_BUFFERABLE
 #include <asm/barrier.h>
-#define __iormb()		rmb()
+#define __iormb(v)		rmb()
 #define __iowmb()		wmb()
 #else
-#define __iormb()		do { } while (0)
+#define __iormb(v)		do { } while (0)
 #define __iowmb()		do { } while (0)
 #endif
 
@@ -321,11 +321,11 @@ void __iomem *pci_remap_cfgspace(resource_size_t res_cookie, size_t size);
 #define outl(v,p)	({ __iowmb(); __raw_writel((__force __u32) \
 					cpu_to_le32(v),__io(p)); })
 
-#define inb(p)	({ __u8 __v = __raw_readb(__io(p)); __iormb(); __v; })
+#define inb(p)	({ __u8 __v = __raw_readb(__io(p)); __iormb(__v); __v; })
 #define inw(p)	({ __u16 __v = le16_to_cpu((__force __le16) \
-			__raw_readw(__io(p))); __iormb(); __v; })
+			__raw_readw(__io(p))); __iormb(__v); __v; })
 #define inl(p)	({ __u32 __v = le32_to_cpu((__force __le32) \
-			__raw_readl(__io(p))); __iormb(); __v; })
+			__raw_readl(__io(p))); __iormb(__v); __v; })
 
 #define outsb(p,d,l)		__raw_writesb(__io(p),d,l)
 #define outsw(p,d,l)		__raw_writesw(__io(p),d,l)
@@ -382,11 +382,11 @@ extern void _memset_io(volatile void __iomem *, int, size_t);
 #define writeq_relaxed_no_log(v, c) __raw_writeq_no_log((__force u64) \
 					cpu_to_le64(v), c)
 
-#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(); __v; })
-#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(); __v; })
-#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(__v); __v; })
+#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(__v); __v; })
+#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(__v); __v; })
 #define readq(c)		({ u64 __v = readq_relaxed(c)\
-					; __iormb(); __v; })
+					; __iormb(__v); __v; })
 
 #define writeb(v,c)		({ __iowmb(); writeb_relaxed(v,c); })
 #define writew(v,c)		({ __iowmb(); writew_relaxed(v,c); })
@@ -503,16 +503,16 @@ void iounmap(volatile void __iomem *iomem_cookie);
  * io{read,write}{8,16,32,64} macros
  */
 #ifndef ioread8
-#define ioread8(p)	({ unsigned int __v = __raw_readb(p); __iormb(); __v; })
+#define ioread8(p)	({ unsigned int __v = __raw_readb(p); __iormb(__v); __v; })
 #define ioread16(p)	({ unsigned int __v = le16_to_cpu((__force __le16)\
-				__raw_readw(p)); __iormb(); __v; })
+				__raw_readw(p)); __iormb(__v); __v; })
 #define ioread32(p)	({ unsigned int __v = le32_to_cpu((__force __le32)\
-				__raw_readl(p)); __iormb(); __v; })
+				__raw_readl(p)); __iormb(__v); __v; })
 #define ioread64(p)	({ unsigned int __v = le64_to_cpu((__force __le64)\
-				__raw_readq(p)); __iormb(); __v; })
+				__raw_readq(p)); __iormb(__v); __v; })
 
 #define ioread64be(p)	({ unsigned int __v = be64_to_cpu((__force __be64)\
-				__raw_readq(p)); __iormb(); __v; })
+				__raw_readq(p)); __iormb(__v); __v; })
 
 #define iowrite8(v, p)	({ __iowmb(); __raw_writeb(v, p); })
 #define iowrite16(v, p)	({ __iowmb(); __raw_writew((__force __u16)\
@@ -531,8 +531,8 @@ void *arch_memremap_wb(phys_addr_t phys_addr, size_t size);
 /*
  * io{read,write}{16,32}be() macros
  */
-#define ioread16be(p)		({ __u16 __v = be16_to_cpu((__force __be16)__raw_readw(p)); __iormb(); __v; })
-#define ioread32be(p)		({ __u32 __v = be32_to_cpu((__force __be32)__raw_readl(p)); __iormb(); __v; })
+#define ioread16be(p)		({ __u16 __v = be16_to_cpu((__force __be16)__raw_readw(p)); __iormb(__v); __v; })
+#define ioread32be(p)		({ __u32 __v = be32_to_cpu((__force __be32)__raw_readl(p)); __iormb(__v); __v; })
 
 #define iowrite16be(v,p)	({ __iowmb(); __raw_writew((__force __u16)cpu_to_be16(v), p); })
 #define iowrite32be(v,p)	({ __iowmb(); __raw_writel((__force __u32)cpu_to_be32(v), p); })
