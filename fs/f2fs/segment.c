@@ -570,12 +570,12 @@ static int __submit_flush_wait(struct f2fs_sb_info *sbi,
 
 static int submit_flush_wait(struct f2fs_sb_info *sbi, nid_t ino)
 {
-	int ret = __submit_flush_wait(sbi, sbi->sb->s_bdev);
+	int ret = 0;
 	int i;
 
-	if (!f2fs_is_multi_device(sbi) || ret)
-		return ret;
-		
+	if (!sbi->s_ndevs)
+		return __submit_flush_wait(sbi, sbi->sb->s_bdev);
+
 	for (i = 0; i < sbi->s_ndevs; i++) {
 		if (!f2fs_is_dirty_device(sbi, ino, i, FLUSH_INO))
 			continue;
