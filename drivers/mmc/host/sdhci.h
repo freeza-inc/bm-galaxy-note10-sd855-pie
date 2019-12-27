@@ -153,6 +153,7 @@
 #define  SDHCI_INT_CMD_MASK	(SDHCI_INT_RESPONSE | SDHCI_INT_TIMEOUT | \
 		SDHCI_INT_CRC | SDHCI_INT_END_BIT | SDHCI_INT_INDEX | \
 		SDHCI_INT_AUTO_CMD_ERR)
+
 #define  SDHCI_INT_DATA_MASK	(SDHCI_INT_DATA_END | SDHCI_INT_DMA_END | \
 		SDHCI_INT_DATA_AVAIL | SDHCI_INT_SPACE_AVAIL | \
 		SDHCI_INT_DATA_TIMEOUT | SDHCI_INT_DATA_CRC | \
@@ -169,11 +170,13 @@
 
 #define SDHCI_CQE_INT_MASK (SDHCI_CQE_INT_ERR_MASK | SDHCI_INT_CQE)
 
-#define SDHCI_AUTO_CMD_STATUS	0x3C
+#define SDHCI_AUTO_CMD_STATUS		0x3C
+#define SDHCI_AUTO_CMD12_NOT_EXEC	0x0001
 #define  SDHCI_AUTO_CMD_TIMEOUT	0x00000002
 #define  SDHCI_AUTO_CMD_CRC	0x00000004
 #define  SDHCI_AUTO_CMD_END_BIT	0x00000008
 #define  SDHCI_AUTO_CMD_INDEX	0x00000010
+#define SDHCI_AUTO_CMD12_NOT_ISSUED	0x0080
 
 #define SDHCI_HOST_CONTROL2		0x3E
 #define  SDHCI_CTRL_UHS_MASK		0x0007
@@ -658,7 +661,6 @@ struct sdhci_host {
 	int reset_wa_applied; /* reset workaround status */
 	ktime_t reset_wa_t; /* time when the reset workaround is applied */
 	int reset_wa_cnt; /* total number of times workaround is used */
-	bool restore_now;
 
 	unsigned long private[0] ____cacheline_aligned;
 };
@@ -879,3 +881,4 @@ void sdhci_dumpregs(struct sdhci_host *host);
 
 void sdhci_cfg_irq(struct sdhci_host *host, bool enable, bool sync);
 #endif /* __SDHCI_HW_H */
+
