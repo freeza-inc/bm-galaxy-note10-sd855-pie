@@ -1081,9 +1081,6 @@ static int mmc_sdio_resume(struct mmc_host *host)
 		}
 	}
 
-	if (!err && host->sdio_irqs) {
-		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD)) {
-
 	if (err)
 		goto out;
 
@@ -1091,7 +1088,7 @@ static int mmc_sdio_resume(struct mmc_host *host)
 	mmc_card_clr_suspended(host->card);
 
 	if (host->sdio_irqs) {
-		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD))
+		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD)) {
 			wake_up_process(host->sdio_irq_thread);
 		} else if (host->caps & MMC_CAP_SDIO_IRQ) {
 			mmc_host_clk_hold(host);
