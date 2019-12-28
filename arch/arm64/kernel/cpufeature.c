@@ -952,9 +952,9 @@ static bool cpu_has_broken_dbm(void)
 	static const struct midr_range cpus[] = {
 #ifdef CONFIG_ARM64_ERRATUM_1024718
 		// A55 r0p0 -r1p0
-		GENERIC_MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),
-		GENERIC_MIDR_RANGE(MIDR_KRYO3S, 7, 12, 7, 12),
-		GENERIC_MIDR_RANGE(MIDR_KRYO4S, 7, 12, 7, 12),
+		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),
+		MIDR_RANGE(MIDR_KRYO3S, 7, 12, 7, 12),
+		MIDR_RANGE(MIDR_KRYO4S, 7, 12, 7, 12),
 #endif
 		{},
 	};
@@ -973,15 +973,10 @@ static bool cpu_can_use_dbm(const struct arm64_cpu_capabilities *cap)
 	return has_cpu_feature && !cpu_has_broken_dbm();
 }
 
-static int cpu_enable_hw_dbm(void *entry)
+static void cpu_enable_hw_dbm(const struct arm64_cpu_capabilities *cap)
 {
-	const struct arm64_cpu_capabilities *cap =
-		(const struct arm64_cpu_capabilities *) entry;
-
 	if (cpu_can_use_dbm(cap))
 		__cpu_enable_hw_dbm();
-
-	return 0;
 }
 
 static bool has_hw_dbm(const struct arm64_cpu_capabilities *cap,
@@ -1035,7 +1030,7 @@ static int ssbs_emulation_handler(struct pt_regs *regs, u32 instr)
 	if (user_mode(regs))
 		return 1;
 
-	if (instr & BIT(CRm_shift))
+	if (instr & BIT(PSTATE_Imm_shift))
 		regs->pstate |= PSR_SSBS_BIT;
 	else
 		regs->pstate &= ~PSR_SSBS_BIT;
@@ -1045,8 +1040,8 @@ static int ssbs_emulation_handler(struct pt_regs *regs, u32 instr)
 }
 
 static struct undef_hook ssbs_emulation_hook = {
-	.instr_mask	= ~(1U << CRm_shift),
-	.instr_val	= 0xd500001f | REG_PSTATE_SSBS_IMM,
+	.instr_mask	= ~(1U << PSTATE_Imm_shift),
+	.instr_val	= 0xd500401f | PSTATE_SSBS,
 	.fn		= ssbs_emulation_handler,
 };
 
@@ -1193,7 +1188,6 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
 		.min_field_value = 1,
 	},
 #endif
-
 #ifdef CONFIG_ARM64_HW_AFDBM
 	{
 		/*
@@ -1210,7 +1204,7 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
 		.field_pos = ID_AA64MMFR1_HADBS_SHIFT,
 		.min_field_value = 2,
 		.matches = has_hw_dbm,
-		.cpu_enable = cpu_enable_ssbs,
+		.cpu_enable = cpu_enable_hw_dbm,
 	},
 #endif
 #ifdef CONFIG_ARM64_SSBD
