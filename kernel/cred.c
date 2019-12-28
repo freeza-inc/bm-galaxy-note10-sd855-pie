@@ -848,7 +848,6 @@ const struct cred *override_creds(const struct cred *new)
 	 * on the validation in 'get_cred()'.
 	 */
 	get_new_cred((struct cred *)new);
->>>>>>> 8b941011f2df... access: avoid the RCU grace period for the temporary subjective credentials
 	alter_cred_subscribers(new, 1);
 	rcu_assign_pointer(current->cred, new);
 #endif  /* CONFIG_RKP_KDP */
