@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, 2016-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2014, 2016-2019 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1287,7 +1287,7 @@ static int pmic_gpio_probe(struct platform_device *pdev)
 		if (ret) {
 			dev_err(dev, "failed to add pin range\n");
 			gpiochip_remove(&state->chip);
-			goto err_range;
+			goto err_free;
 		}
 	}
 
