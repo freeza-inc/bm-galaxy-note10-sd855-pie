@@ -338,8 +338,10 @@ static void dwc3_free_event_buffers(struct dwc3 *dwc)
 	struct dwc3_event_buffer	*evt;
 
 	evt = dwc->ev_buf;
-	if (evt)
+	if (evt) {
 		dwc3_free_one_event_buffer(dwc, evt);
+		dwc->ev_buf = NULL;
+	}
 
 	/* free GSI related event buffers */
 	dwc3_notify_event(dwc, DWC3_GSI_EVT_BUF_FREE, 0);
@@ -1341,9 +1343,8 @@ static int dwc3_probe(struct platform_device *pdev)
 		dwc->dr_mode == USB_DR_MODE_PERIPHERAL) {
 		ret = dwc3_gadget_init(dwc);
 		if (ret) {
-		if (ret != -EPROBE_DEFER)
-			dev_err(dev, "failed to initialize core: %d\n", ret);
-		goto err3;
+			dev_err(dwc->dev, "gadget init failed %d\n", ret);
+			goto err3;
 		}
 	}
 
@@ -1360,22 +1361,13 @@ static int dwc3_probe(struct platform_device *pdev)
 	dwc3_debugfs_init(dwc);
 	return 0;
 
-err5:
-	dwc3_event_buffers_cleanup(dwc);
-	dwc3_ulpi_exit(dwc);
-
-err4:
-	dwc3_free_scratch_buffers(dwc);
-
 err3:
+	dwc3_free_scratch_buffers(dwc);
+err2:
 	dwc3_free_event_buffers(dwc);
 
-err2:
-	pm_runtime_allow(&pdev->dev);
-
 err1:
-	pm_runtime_put_sync(&pdev->dev);
-	pm_runtime_disable(&pdev->dev);
+	destroy_workqueue(dwc->dwc_wq);
 
 err0:
 	/*
