@@ -44,3 +44,4 @@ typedef unsigned short col_type_t;
 #define DEFAULT_FLOW_FREQ 360 /* Flow delays for rapid pushes in mode 2 */
 
 #endif  /* _KLAPSE_H */
+
